@@ -9,7 +9,11 @@ from ipywidgets import interact, interact_manual
 import IPython.display
 from IPython.display import display, clear_output
 
-df = pd.read_csv("atussum_0321.csv")
+from zipfile import ZipFile
+
+zip_file = ZipFile("atussum_0321.csv.zip")
+
+df = pd.read_csv(zip_file.open('atussum_0321.csv'))
 
 def plotBarGraph(data):
   groups = [*range(1,data.shape[0] + 1)]
