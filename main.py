@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 
-
 import os
 import ipywidgets as widgets
 from ipywidgets import interact, interact_manual
@@ -10,6 +9,7 @@ import IPython.display
 from IPython.display import display, clear_output
 
 from zipfile import ZipFile
+from ete3 import Tree
 
 #zip_file = ZipFile("atussum_0321.csv.zip")
 
@@ -198,7 +198,7 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
     if (showWidget) :
       for i in range(0,4):
         variableDropDown.append(widgets.Dropdown(options = variables1, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
-      for i in range(4, 6):
+      for i in range(4, 5):
         variableDropDown.append(widgets.Dropdown(options = variables2, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
     else:
       defaultBinning(userSelectedVariables1, userSelectedVariables2)
@@ -233,10 +233,6 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
         choice = change.new
         addToUserSelectedVariables(choice, 0, False)
 
-    def variable6_eventhandler(change):
-        choice = change.new
-        addToUserSelectedVariables(choice, 1, False)
-
     def on_button_clicked(b):
         clear_output()
         global userSelectedVariables
@@ -250,7 +246,6 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
     variableDropDown[2].observe(variable3_eventhandler, names='value')
     variableDropDown[3].observe(variable4_eventhandler, names='value')
     variableDropDown[4].observe(variable5_eventhandler, names='value')
-    variableDropDown[5].observe(variable6_eventhandler, names='value')
     # variableDropDown[6].on_click(on_button_clicked)
     
 
@@ -263,7 +258,7 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
 
 
 variables_list1 = [('', ''), ('age', 'TEAGE'), ('gender', 'TESEX'), ('emp_type', 'TELFS'), ('child_num', 'TRCHILDNUM')]
-variables_list2 = [('', ''), ('sports', 't130199'), ('leisure', 't120199')]
+variables_list2 = [('', ''), ('sports', 't130199'), ('leisure', 't120199'), ('sleep', 't010101')]
 userSelectedVariables1 = [None] * 4
 userSelectedVariables2 = [None] * 2
 dropdown(variables_list1, variables_list2,  True, userSelectedVariables1, userSelectedVariables2)
