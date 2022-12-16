@@ -128,34 +128,80 @@ def binSports(newDF,varList,actKey,reorder=0):
     binDF=createNewBins(newDF,actKey,10,0,1440)
     newDF['sportsBin']=binDF.copy()
     bins = [*range(7,144)]
-    newDF['sportsBin']=newDF['sportsBin'].replace(bins,6)
+    newDF['sportsBin']=newDF['sportsBin'].replace(bins,6) #everything after 6th bin
     varList.append('sportsBin')
     sportsBins[0]=True
   elif sportsBins[1]==False:
     binDF=createNewBins(newDF,actKey,60,0,1440)
     newDF['sportsBin']=binDF.copy()
     bins = [*range(2,24)]
-    newDF['sportsBin']=newDF['sportsBin'].replace(bins,1)
+    newDF['sportsBin']=newDF['sportsBin'].replace(bins,1) #replacing rest as second bin
     varList.append('sportsBin')
     if reorder==1:
       initializeBinVars('sportsBins')
-
-def binLeisure(newDF,varList,actKey,reorder=0):
-  if leisureBins[0] == False:
-    binDF=createNewBins(newDF,actKey,10,0,1440)
-    newDF['leisureBin']=binDF.copy()
-    bins = [*range(7,144)]
-    newDF['leisureBin']=newDF['leisureBin'].replace(bins,6)
-    varList.append('leisureBin')
-    leisureBins[0]=True
-  elif leisureBins[1]==False:
+      
+def binSleep(newDF,varList,actKey,reorder=0):
+   if sleepBins[0] == False:
     binDF=createNewBins(newDF,actKey,60,0,1440)
-    newDF['leisureBin']=binDF.copy()
-    bins = [*range(2,24)]
-    newDF['leisureBin']=newDF['leisureBin'].replace(bins,1)
-    varList.append('leisureBin')
+    newDF['sleepBin']=binDF.copy()
+    #bins = [*range(7,144)] # ??
+    #newDF['sleepBin']=newDF['sleepBin'].replace(bins,6)
+    varList.append('sleepBin')
+    sleepBins[0]=True
+  elif sleepBins[1]==False:
+    binDF=createNewBins(newDF,actKey,60,0,1440)
+    newDF['sleepBin']=binDF.copy()
+    bins1 = [*range(1,7)]
+    bins2 = [*range(7,14)]
+    bins3 = [*range(14,24)]
+    newDF['sleepBin']=newDF['sleepBin'].replace(bins1,0)
+    newDF['sleepBin']=newDF['sleepBin'].replace(bins2,1)
+    newDF['sleepBin']=newDF['sleepBin'].replace(bins3,2)
+    varList.append('sleepBin')
     if reorder==1:
-      initializeBinVars('leisureBins')
+      initializeBinVars('sleepBins')
+  elif sleepBins[2] == False:
+    binDF=createNewBins(newDF,actKey,240,0,1440)
+    newDF['sleepBin']=binDF.copy()
+    #bins = [*range(7,144)] # ??
+    #newDF['sleepBin']=newDF['sleepBin'].replace(bins,4)
+    varList.append('sleepBin')
+    sleepBins[0]=True #??
+    
+def binSocialize(newDF,varList,actKey,reorder=0):
+  if socialBins[0] == False:
+    binDF=createNewBins(newDF,actKey,60,0,1440)
+    newDF['socializeBin']=binDF.copy()
+    bins = [*range(4,24)]
+    newDF['socializeBin']=newDF['socializeBin'].replace(bins,1) #everything after 4hrs
+    varList.append('socializeBin')
+    socialBins[0]=True
+  elif socialBins[1]==False:
+    binDF=createNewBins(newDF,actKey,60,0,1440)
+    newDF['socializeBin']=binDF.copy()
+    bins = [*range(2,24)]
+    newDF['socializeBin']=newDF['socializeBin'].replace(bins,1) #replacing rest as second bin
+    varList.append('socializeBin')
+    if reorder==1:
+      initializeBinVars('socializeBins')
+      
+
+#def binLeisure(newDF,varList,actKey,reorder=0):
+ # if leisureBins[0] == False:
+  #  binDF=createNewBins(newDF,actKey,10,0,1440)
+   # newDF['leisureBin']=binDF.copy()
+   # bins = [*range(7,144)]
+   # newDF['leisureBin']=newDF['leisureBin'].replace(bins,6)
+   # varList.append('leisureBin')
+   # leisureBins[0]=True
+ # elif leisureBins[1]==False:
+  #  binDF=createNewBins(newDF,actKey,60,0,1440)
+  #  newDF['leisureBin']=binDF.copy()
+  #  bins = [*range(2,24)]
+  #  newDF['leisureBin']=newDF['leisureBin'].replace(bins,1)
+   # varList.append('leisureBin')
+   # if reorder==1:
+   #   initializeBinVars('leisureBins') 
 
 def defaultBinning(varList, actList=None):
   varList = [i for i in varList if i is not None]
@@ -175,7 +221,7 @@ def defaultBinning(varList, actList=None):
     if actList[0] == 't130199':
       #drop the biased data
       bins = [*range(0,10)]
-      dropIndex=newDF[newDF.t130199.isin(bins)].index
+      dropIndex=newDF[newDF.t130199.isin(bins)].index #dropping bins in range 0 to 10
       newDF.drop(dropIndex , inplace=True)
       binSports(newDF,varList,actList[0])
 
