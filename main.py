@@ -19,6 +19,8 @@ ageBins = [False]*2
 numOfChildBins = [False]*3
 sportsBins = [False]*2
 leisureBins = [False]*2
+sleepBins = [False]*3
+socialBins = [False]*2
 
 def initializeBinVars(toInit=None):
   if toInit == 0:
@@ -34,6 +36,10 @@ def initializeBinVars(toInit=None):
     sportsBins[0:] = [False,False]
   elif toInit == 'leisureBins':
     leisureBins[0:] = [False,False]
+  elif toInit == 'sleepBins':
+    sleepBins[0:] = [False,False,False]
+  elif toInit == 'socializeBins':
+    socialBins[0:] = [False,False]
 
 def plotBarGraph(data):
   keys = data.keys()
@@ -58,12 +64,11 @@ def creatListsAndGroup(data, varList):
       key_str.append(str(k))
     d = dict(zip(key_str,val))
     treeList.append(d)
-  print(treeList[1])
   plotBarGraph(newDF)
 
 def createNewBins(newDf,key,step,start,end):
   bins =[*range(start,end+1,step)]
-  if key not in ['t130199','t010101','t120199']:
+  if key not in ['t130199','t010101','t120101']:
     labels = [*range(1,int((end/step)))]
   else:
     labels = [*range(0,int((end/step)))]
@@ -109,7 +114,7 @@ def binNumOfChild(newDF,varList,i,reorder=0):
     #Binning 0,1,2,3 vs More than 3 children
     bins = [*range(4,maxchild+1)]
     newDF['childBins'] = newDF['TRCHILDNUM']
-    newDF['childBins']= newDF['childBins'].replace(bins,5)
+    newDF['childBins']= newDF['childBins'].replace(bins,4)
     varList[i]='childBins'
     if reorder == 1:
       numOfChildBins[1]=True
@@ -141,7 +146,7 @@ def binSports(newDF,varList,actKey,reorder=0):
       initializeBinVars('sportsBins')
       
 def binSleep(newDF,varList,actKey,reorder=0):
-   if sleepBins[0] == False:
+  if sleepBins[0] == False:
     binDF=createNewBins(newDF,actKey,60,0,1440)
     newDF['sleepBin']=binDF.copy()
     #bins = [*range(7,144)] # ??
@@ -159,21 +164,20 @@ def binSleep(newDF,varList,actKey,reorder=0):
     newDF['sleepBin']=newDF['sleepBin'].replace(bins3,2)
     varList.append('sleepBin')
     if reorder==1:
-      initializeBinVars('sleepBins')
+      sleepBins[1]=True
   elif sleepBins[2] == False:
     binDF=createNewBins(newDF,actKey,240,0,1440)
     newDF['sleepBin']=binDF.copy()
-    #bins = [*range(7,144)] # ??
-    #newDF['sleepBin']=newDF['sleepBin'].replace(bins,4)
     varList.append('sleepBin')
-    sleepBins[0]=True #??
+    if reorder==1:
+      initializeBinVars('sleepBins')
     
 def binSocialize(newDF,varList,actKey,reorder=0):
   if socialBins[0] == False:
     binDF=createNewBins(newDF,actKey,60,0,1440)
     newDF['socializeBin']=binDF.copy()
     bins = [*range(4,24)]
-    newDF['socializeBin']=newDF['socializeBin'].replace(bins,1) #everything after 4hrs
+    newDF['socializeBin']=newDF['socializeBin'].replace(bins,4) #everything after 4hrs
     varList.append('socializeBin')
     socialBins[0]=True
   elif socialBins[1]==False:
@@ -186,27 +190,11 @@ def binSocialize(newDF,varList,actKey,reorder=0):
       initializeBinVars('socializeBins')
       
 
-#def binLeisure(newDF,varList,actKey,reorder=0):
- # if leisureBins[0] == False:
-  #  binDF=createNewBins(newDF,actKey,10,0,1440)
-   # newDF['leisureBin']=binDF.copy()
-   # bins = [*range(7,144)]
-   # newDF['leisureBin']=newDF['leisureBin'].replace(bins,6)
-   # varList.append('leisureBin')
-   # leisureBins[0]=True
- # elif leisureBins[1]==False:
-  #  binDF=createNewBins(newDF,actKey,60,0,1440)
-  #  newDF['leisureBin']=binDF.copy()
-  #  bins = [*range(2,24)]
-  #  newDF['leisureBin']=newDF['leisureBin'].replace(bins,1)
-   # varList.append('leisureBin')
-   # if reorder==1:
-   #   initializeBinVars('leisureBins') 
-
 def defaultBinning(varList, actList=None):
   varList = [i for i in varList if i is not None]
   actList = [i for i in actList if i is not None]
   initializeBinVars()
+  treeList.clear()
   newDF = df.copy()
   #defaultBins for each variable
   for i in range(len(varList)):
@@ -225,11 +213,11 @@ def defaultBinning(varList, actList=None):
       newDF.drop(dropIndex , inplace=True)
       binSports(newDF,varList,actList[0])
 
-    elif actList[0] == 't120199':
-      bins = [*range(0,10)]
-      dropIndex=newDF[newDF.t120199.isin(bins)].index
-      newDF.drop(dropIndex , inplace=True)
-      binLeisure(newDF,varList,actList[0])
+    elif actList[0] == 't120101':
+      binSocialize(newDF,varList,actList[0])
+    
+    elif actList[0] == 't010101':
+      binSleep(newDF,varList,actList[0])
 
   creatListsAndGroup(newDF,varList)
   del newDF
@@ -237,6 +225,7 @@ def defaultBinning(varList, actList=None):
 def reorderBins(varList, actList=None,reorderVar=None):
   varList = [i for i in varList if i is not None]
   actList = [i for i in actList if i is not None]
+  treeList.clear()
   newDF = df.copy()
   #defaultBins for each variable
   for i in range(len(varList)):
@@ -266,20 +255,20 @@ def reorderBins(varList, actList=None,reorderVar=None):
       else:
         binSports(newDF,varList,actList[0])
 
-    elif actList[0] == 't120199':
-      bins = [*range(0,10)]
-      dropIndex=newDF[newDF.t120199.isin(bins)].index
-      newDF.drop(dropIndex , inplace=True)
-      if reorderVar=='t120199':
-        binLeisure(newDF,varList,actList[0],1)
+    elif actList[0] == 't120101':
+      if reorderVar=='t120101':
+        binSocialize(newDF,varList,actList[0],1)
       else:
-        binLeisure(newDF,varList,actList[0])
+        binSocialize(newDF,varList,actList[0])
+    elif actList[0] == 't010101':
+      if reorderVar == 't010101':
+        binSleep(newDF,varList,actList[0],1)
+      else:
+        binSleep(newDF,varList,actList[0])
 
-  tempDF = newDF.groupby(varList)["TUCASEID"].count()
-  print(tempDF)
-  plotBarGraph(tempDF)
+  creatListsAndGroup(newDF,varList)
   del newDF
-
+  
 # Logic for drop down
 variableDropDown = []
 def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSelectedVariables2):
