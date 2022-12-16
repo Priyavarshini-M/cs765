@@ -34,6 +34,8 @@ def plotBarGraph(data):
     key_str.append(str(k))
   fig = px.bar(x=key_str,y=data)
   fig.update_xaxes(type='category')
+  fig.update_layout(yaxis_title = "Number of samples", 
+                    xaxis_title = "")
   fig.show()
 
 from numpy.core.fromnumeric import var

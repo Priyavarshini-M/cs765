@@ -36,8 +36,9 @@ figure out a good way to divide the data population.
 		* PyQt5
 		* ipywidgets
 		
-*Steps to perform after downloading all packages
+* Steps to perform after downloading all packages
 
 1. Open VS code on the repository directory
 2. Right click on main.py and select 'Run Current File in interactive Window'
+<img width="448" alt="run interactive mode" src="https://user-images.githubusercontent.com/120344035/208188706-e1e65d1a-2cb5-43f2-a1c8-6c44cabed3da.png">:
 3. After each interaction the tree will be rendered in tree.png
