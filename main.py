@@ -9,12 +9,12 @@ import IPython.display
 from IPython.display import display, clear_output
 
 from zipfile import ZipFile
-from ete3 import Tree
+from tree import drawTree
 
-#zip_file = ZipFile("atussum_0321.csv.zip")
+zip_file = ZipFile("atussum_0321.csv.zip")
+df = pd.read_csv(zip_file.open('atussum_0321.csv'))
 
-#df = pd.read_csv(zip_file.open('atussum_0321.csv'))
-df = pd.read_csv('atussum_0321.csv')
+# df = pd.read_csv('atussum_0321.csv')
 ageBins = [False]*2
 numOfChildBins = [False]*3
 sportsBins = [False]*2
@@ -272,8 +272,8 @@ def reorderBins(varList, actList=None,reorderVar=None):
 # Logic for drop down
 variableDropDown = []
 def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSelectedVariables2):
-    clear_output()
-    output = widgets.Output()
+    # clear_output()
+    # output = widgets.Output()
     # userSelectionSize1 = len(userSelectedVariables1)
     # userSelectionSize2 = len ()
     print (userSelectedVariables1)
@@ -284,21 +284,24 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
     if (showWidget) :
       for i in range(0,4):
         variableDropDown.append(widgets.Dropdown(options = variables1, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
+        variableDropDown.append(widgets.Button(description="Reorder"))
       for i in range(4, 5):
         variableDropDown.append(widgets.Dropdown(options = variables2, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
-    else:
-      defaultBinning(userSelectedVariables1, userSelectedVariables2)
+        variableDropDown.append(widgets.Button(description="Reorder"))
+    # else:
+    #   defaultBinning(userSelectedVariables1, userSelectedVariables2)
 
     def addToUserSelectedVariables(choice, i, flag):
-      clear_output()
       if flag :
         if choice not in userSelectedVariables1:
           userSelectedVariables1[i] = choice
       else:
         if choice not in userSelectedVariables2:
           userSelectedVariables2[i] = choice
-      dropdown(variables1, variables2, False, userSelectedVariables1, userSelectedVariables2)    
-
+      # dropdown(variables1, variables2, False, userSelectedVariables1, userSelectedVariables2)    
+      defaultBinning(userSelectedVariables1, userSelectedVariables2)
+      drawTree(treeList)
+      
     def variable1_eventhandler(change):
         choice = change.new
         addToUserSelectedVariables(choice, 0, True) 
@@ -319,6 +322,26 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
         choice = change.new
         addToUserSelectedVariables(choice, 0, False)
 
+    def button1_eventhandler(b): 
+      reorderBins(userSelectedVariables1, userSelectedVariables2, userSelectedVariables1[0])
+      drawTree(treeList)
+
+    def button2_eventhandler(b): 
+      reorderBins(userSelectedVariables1, userSelectedVariables2, userSelectedVariables1[1])
+      drawTree(treeList)
+
+    def button3_eventhandler(b): 
+      reorderBins(userSelectedVariables1, userSelectedVariables2, userSelectedVariables1[2])
+      drawTree(treeList)
+
+    def button4_eventhandler(b): 
+      reorderBins(userSelectedVariables1, userSelectedVariables2, userSelectedVariables1[3])
+      drawTree(treeList)
+
+    def button5_eventhandler(b): 
+      reorderBins(userSelectedVariables1, userSelectedVariables2, userSelectedVariables1[4])
+      drawTree(treeList)
+
     def on_button_clicked(b):
         clear_output()
         global userSelectedVariables
@@ -327,20 +350,25 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
         variableDropDown.clear()
         dropdown(variables1, variables2, True, userSelectedVariables1, userSelectedVariables2)  
        
-    variableDropDown[0].observe(variable1_eventhandler, names='value')
-    variableDropDown[1].observe(variable2_eventhandler, names='value')
-    variableDropDown[2].observe(variable3_eventhandler, names='value')
-    variableDropDown[3].observe(variable4_eventhandler, names='value')
-    variableDropDown[4].observe(variable5_eventhandler, names='value')
-    # variableDropDown[6].on_click(on_button_clicked)
-    
+    # dropDown event handlers
+    variableDropDown[0].observe(variable1_eventhandler, names=['value'])
+    variableDropDown[2].observe(variable2_eventhandler, names=['value'])
+    variableDropDown[4].observe(variable3_eventhandler, names=['value'])
+    variableDropDown[6].observe(variable4_eventhandler, names=['value'])
+    variableDropDown[8].observe(variable5_eventhandler, names=['value'])
 
+    # reorder button event handlers
+    variableDropDown[1].on_click(button1_eventhandler)
+    variableDropDown[3].on_click(button2_eventhandler)
+    variableDropDown[5].on_click(button3_eventhandler)
+    variableDropDown[7].on_click(button4_eventhandler)
+    variableDropDown[9].on_click(button5_eventhandler)
     input_widgets = widgets.VBox(variableDropDown)
 
     display(input_widgets)
     display(button)
     button.on_click(on_button_clicked)
-    IPython.display.clear_output(wait=True)    
+    # IPython.display.clear_output(wait=True)    
 
 
 variables_list1 = [('', ''), ('age', 'TEAGE'), ('gender', 'TESEX'), ('emp_type', 'TELFS'), ('child_num', 'TRCHILDNUM')]
