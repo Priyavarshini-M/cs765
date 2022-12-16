@@ -46,20 +46,11 @@ def parseTreeList(treeList):
                                                 size4 = ((value4 / 1000) / (value3 / 1000)) * 75
                                                 E.append(D[index3].add_child(name = label))
                                                 E[-1].add_features(weight = size4, level = 4)
-                                                if (size >= 5):
-                                                    level5 = treeList[4]
-                                                    for index5, (key5, value5) in enumerate(level5.items()):
-                                                        if (key5.startswith(key4[:-1])):
-                                                            label = key5 + ' -> ' +str(value5) + '  '
-                                                            size5 = ((value5 / 1000) / (value4 / 1000)) * 75
-                                                            F.append(E[index4].add_child(name = label))
-                                                            F[-1].add_features(weight = size5, level = 5)
 
 
     return t
 
 def drawTree(treeList) :
-    # varSize = len (treeList)
     t = parseTreeList(treeList)
 
     ts = TreeStyle()
