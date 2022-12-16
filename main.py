@@ -2,10 +2,8 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 
-import os
 import ipywidgets as widgets
-from ipywidgets import interact, interact_manual
-import IPython.display
+from ipywidgets import Layout
 from IPython.display import display, clear_output
 
 from zipfile import ZipFile
@@ -14,6 +12,8 @@ from tree import drawTree
 zip_file = ZipFile("atussum_0321.csv.zip")
 df = pd.read_csv(zip_file.open('atussum_0321.csv'))
 
+
+OldDf = pd.DataFrame()
 # df = pd.read_csv('atussum_0321.csv')
 ageBins = [False]*2
 numOfChildBins = [False]*3
@@ -23,7 +23,7 @@ sleepBins = [False]*3
 socialBins = [False]*2
 
 def initializeBinVars(toInit=None):
-  if toInit == 0:
+  if toInit == None:
     ageBins[0:] = [False]*2
     numOfChildBins[0:] = [False]*3
     sportsBins[0:] = [False]*2
@@ -135,21 +135,22 @@ def binNumOfChild(newDF,varList,i,reorder=0):
 
 def binSports(newDF,varList,actKey,reorder=0):
   if sportsBins[0] == False:
-    binDF=createNewBins(newDF,actKey,10,0,1440)
-    newDF['sportsBin']=binDF.copy()
-    bins = [*range(6,144)]
-    for i in range(0,6):
-      newDF['sportsBin']=newDF['sportsBin'].replace(i,(str((i+1)*10)+' Mins'))
-    newDF['sportsBin']=newDF['sportsBin'].replace(bins,'More than 1 Hrs') #everything after 6th bin
-    varList.append('sportsBin')
-    sportsBins[0]=True
-  elif sportsBins[1]==False:
     binDF=createNewBins(newDF,actKey,60,0,1440)
     newDF['sportsBin']=binDF.copy()
     bins = [*range(1,24)]
     newDF['sportsBin']=newDF['sportsBin'].replace(0,'Less than 1 Hr')
     newDF['sportsBin']=newDF['sportsBin'].replace(bins,'More than 1 Hr') #replacing rest as second bin
     varList.append('sportsBin')
+    
+    sportsBins[0]=True
+  elif sportsBins[1]==False:
+    binDF=createNewBins(newDF,actKey,10,0,1440)
+    newDF['sportsBin']=binDF.copy()
+    bins = [*range(6,144)]
+    for i in range(0,6):
+      newDF['sportsBin']=newDF['sportsBin'].replace(i,(str((i+1)*10)+' Mins'))
+    newDF['sportsBin']=newDF['sportsBin'].replace(bins,'More than 1 Hrs') #everything after 6th bin
+    varList.append('sportsBin') 
     if reorder==1:
       initializeBinVars('sportBins')
       
@@ -254,7 +255,7 @@ def reorderBins(varList, actList=None,reorderVar=None):
       if reorderVar=='TEAGE':
         binAge(newDF,varList,i,1)
       else:
-        binAge(newDF,varList,i,1)
+        binAge(newDF,varList,i)
     elif varList[i] == 'TELFS':
       if reorderVar=='TELFS':
         binEmploymentType(newDF)
@@ -292,24 +293,19 @@ def reorderBins(varList, actList=None,reorderVar=None):
 # Logic for drop down
 variableDropDown = []
 def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSelectedVariables2):
-    # clear_output()
-    # output = widgets.Output()
-    # userSelectionSize1 = len(userSelectedVariables1)
-    # userSelectionSize2 = len ()
-    print (userSelectedVariables1)
-    print (userSelectedVariables2)
 
-    button = widgets.Button(description="Clear All Values")
+    button = widgets.Button(description="Clear All", layout=Layout(width='99%'))
+    button.style.button_color = 'lightgreen'
 
     if (showWidget) :
       for i in range(0,4):
         variableDropDown.append(widgets.Dropdown(options = variables1, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
         variableDropDown.append(widgets.Button(description="Reorder"))
+        variableDropDown[-1].style.button_color = 'lightblue'
       for i in range(4, 5):
         variableDropDown.append(widgets.Dropdown(options = variables2, value=None, description='Variable ' + str(i+1) + ' :', disabled=False))
         variableDropDown.append(widgets.Button(description="Reorder"))
-    # else:
-    #   defaultBinning(userSelectedVariables1, userSelectedVariables2)
+        variableDropDown[-1].style.button_color = 'lightblue'
 
     def addToUserSelectedVariables(choice, i, flag):
       if flag :
@@ -318,7 +314,6 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
       else:
         if choice not in userSelectedVariables2:
           userSelectedVariables2[i] = choice
-      # dropdown(variables1, variables2, False, userSelectedVariables1, userSelectedVariables2)    
       defaultBinning(userSelectedVariables1, userSelectedVariables2)
       drawTree(treeList)
       
@@ -364,7 +359,7 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
 
     def on_button_clicked(b):
         clear_output()
-        global userSelectedVariables
+        # global userSelectedVariables
         userSelectedVariables1 = [None] * 4
         userSelectedVariables2 = [None] * 2
         variableDropDown.clear()
@@ -383,16 +378,22 @@ def dropdown(variables1, variables2, showWidget, userSelectedVariables1, userSel
     variableDropDown[5].on_click(button3_eventhandler)
     variableDropDown[7].on_click(button4_eventhandler)
     variableDropDown[9].on_click(button5_eventhandler)
-    input_widgets = widgets.VBox(variableDropDown)
+
+    widget1 = widgets.HBox([variableDropDown[0], variableDropDown[1]])
+    widget2 = widgets.HBox([variableDropDown[2], variableDropDown[3]])
+    widget3 = widgets.HBox([variableDropDown[4], variableDropDown[5]])
+    widget4 = widgets.HBox([variableDropDown[6], variableDropDown[7]])
+    widget5 = widgets.HBox([variableDropDown[8], variableDropDown[9]])
+
+    input_widgets = widgets.VBox([widget1, widget2, widget3, widget4, widget5])
 
     display(input_widgets)
     display(button)
     button.on_click(on_button_clicked)
-    # IPython.display.clear_output(wait=True)    
 
 
 variables_list1 = [('', ''), ('age', 'TEAGE'), ('gender', 'TESEX'), ('emp_type', 'TELFS'), ('child_num', 'TRCHILDNUM')]
-variables_list2 = [('', ''), ('sports', 't130199'), ('leisure', 't120199'), ('sleep', 't010101')]
+variables_list2 = [('', ''), ('sports', 't130199'), ('socialize', 't120101'), ('sleep', 't010101')]
 userSelectedVariables1 = [None] * 4
 userSelectedVariables2 = [None] * 2
 dropdown(variables_list1, variables_list2,  True, userSelectedVariables1, userSelectedVariables2)
